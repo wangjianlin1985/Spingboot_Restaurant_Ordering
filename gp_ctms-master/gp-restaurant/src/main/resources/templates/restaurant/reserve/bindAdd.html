@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('预定列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+	        <div class="btn-group-sm" id="toolbar" role="group">
+		        <a class="btn btn-success" onclick="save()" shiro:hasPermission="rest:reserve:add">
+		            <i class="fa fa-plus"></i> 保存
+		        </a>
+	        </div>
+			<div class="col-sm-12 select-table table-striped">
+				<table id="bootstrap-table" data-mobile-responsive="true"></table>
+			</div>
+	    </div>
+	</div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+    	var mainId = [[${mainId}]]
+        var prefix = ctx + "/restaurant/reserve/bind";
+
+        $(function() {
+            var options = {
+                url: prefix + "/unadd/list/"+mainId,
+                modalName: "菜品",
+                pagination: false,
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'foodId',
+                    title: '主键'
+                },
+                {
+                    field: 'foodName',
+                    title: '菜品'
+                },
+                {
+                    field: 'price',
+                    title: '价格'
+                },
+                {
+					field: 'photo',
+					title: '照片',
+					formatter: function(value, row, index) {
+						return $.table.imageView(ctx+value,200,200);
+					}
+				}]
+            };
+            $.table.init(options);
+        });
+        
+        function save(){
+        	var foodIds = $.map($.btTable.bootstrapTable('getSelections'), function (row) {
+    	        return row["foodId"];
+    	    });
+        	var prices = $.map($.btTable.bootstrapTable('getSelections'), function (row) {
+    	        return row["price"];
+    	    });
+    		$.modal.confirm("确认要选中的" + foodIds.length + "条数据吗?", function() {
+    			var data = { "foodIds": foodIds.join(),"prices": prices.join() };
+    			$.operate.submit(prefix+"/save/"+mainId, "post", "json", data);
+    		});
+        }
+        
+    </script>
+</body>
+</html>

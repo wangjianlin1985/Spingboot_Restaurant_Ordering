@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('餐桌列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+		<div class="row">
+			
+	        <div class="btn-group-sm" id="toolbar" role="group">
+		        <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="rest:dinnertable:add">
+		            <i class="fa fa-plus"></i> 新增
+		        </a>
+		        <a class="btn btn-primary single disabled" onclick="$.operate.edit()" shiro:hasPermission="rest:dinnertable:edit">
+		            <i class="fa fa-edit"></i> 修改
+		        </a>
+		        <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="rest:dinnertable:remove">
+		            <i class="fa fa-remove"></i> 删除
+		        </a>
+	        </div>
+	        <div class="col-sm-12 select-table table-striped">
+	            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+	        </div>
+	    </div>
+	</div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('rest:dinnertable:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('rest:dinnertable:remove')}]];
+        var prefix = ctx + "/restaurant/dinnertable";
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                modalName: "餐桌",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'tableId',
+                    title: '主键'
+                },
+                {
+                    field: 'tableName',
+                    title: '编号'
+                },
+					{
+						field: 'seat',
+						title: '人数'
+					},
+                {
+                    field: 'status',
+                    title: '状态',
+                    formatter: function(value, row, index) {
+                    	if(value == 0) {
+                    		return '空闲'
+                    	} else {
+                    		return '使用'
+                    	}
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-primary btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.tableId + '\')"><i class="fa fa-edit"></i>修改</a> ');
+	                    actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.tableId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

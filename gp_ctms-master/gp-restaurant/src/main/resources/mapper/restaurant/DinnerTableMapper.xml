@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.restaurant.dao.DinnerTableDao">
+    
+    <sql id="selectAllVO">
+    	select
+    		table_id as tableId,
+    		table_name as tableName,
+    		status,seat
+    	from rest_dinner_table
+    </sql>
+    
+    <select id="getById" parameterType="Long" resultType="DinnerTable">
+        <include refid="selectAllVO"/>
+        where table_id = #{tableId}
+    </select>
+    
+    
+    <select id="list" parameterType="DinnerTable" resultType="DinnerTable">
+        <include refid="selectAllVO"/>
+        where 1 = 1
+        <if test="status != null">
+        	and status = #{status}
+        </if>
+        order by convert(table_name using gbk)
+    </select>
+    
+    <insert id="add" parameterType="DinnerTable">
+        insert into rest_dinner_table (
+			<if test="tableName != null and tableName != '' ">table_name,</if>
+			<if test="status != null">status,</if>
+			<if test="seat != null">seat,</if>
+ 			table_id
+        )values(
+			<if test="tableName != null and tableName != ''">#{tableName},</if>
+			<if test="status != null">#{status},</if>
+			<if test="seat != null">#{seat},</if>
+ 			#{tableId}
+		)
+    </insert>
+	 
+    <update id="update" parameterType="DinnerTable">
+        update rest_dinner_table 
+        set table_name = #{tableName},seat=#{seat}
+        where table_id = #{tableId}
+    </update>
+    
+    <update id="updateStatus" parameterType="DinnerTable">
+        update rest_dinner_table 
+        set status = #{status}
+        where table_id = #{tableId}
+    </update>
+    
+	
+    <delete id="deleteByIds" >
+        delete from rest_dinner_table
+        where table_id in 
+        <foreach item="tableId" collection="array" open="(" separator="," close=")">
+        	#{tableId}
+        </foreach>
+    </delete>
+    
+</mapper>

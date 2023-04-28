@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+	<th:block th:include="include :: header('修改')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-dt-edit">
+            <input id="id" name="id" th:value="${id}"  type="hidden">
+            
+            <div class="form-group"  >
+			    <label class="col-sm-3 control-label ">选择餐桌：</label>
+                <div class="col-sm-8">
+                    <select class="form-control" id="tableId"  name="tableId" >
+                         <option th:each="table : ${freeList}" th:text="${table.tableName}" th:value="${table.tableId}"></option>
+                    </select>
+                </div>
+			</div>
+    	</form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script type="text/javascript">
+    	var prefix = ctx + "/restaurant/reserve";
+	    
+	    $("#form-dt-edit").validate({
+	    	onkeyup: false,
+	        rules: {
+	            
+	        },
+	        messages: {
+	            
+	        },
+	        focusCleanup: true
+	    });
+
+	    function submitHandler() {
+	    	var id = $("#id").val()
+	    	var tableId = $("#tableId").val()
+	        if ($.validate.form()) {
+	        	$.operate.save(prefix + "/bind/"+id+"/"+tableId, $('#form-dt-edit').serialize());
+	        }
+	    }
+    </script>
+</body>
+</html>

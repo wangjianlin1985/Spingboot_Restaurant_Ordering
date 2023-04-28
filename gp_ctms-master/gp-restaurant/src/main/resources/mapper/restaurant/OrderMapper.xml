@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.restaurant.dao.OrderDao">
+
+    <sql id="selectAllVO">
+        select
+               a.id,
+               a.start_time as startTime,
+               a.end_time as endTime,
+               a.no,
+               a.rockover,
+               a.date,
+               a.money,
+               a.status,
+               a.type,
+               a.table_id as "table.tableId",
+               b.table_name as "table.tableName"
+        from rest_order a left join rest_dinner_table b on a.table_id = b.table_id
+    </sql>
+    
+    <select id="listGroupMoney" resultType="Order" >
+    	select sum(money) as money,date from `rest_order` 
+    	where status = 2 and date >= #{searchStart} and #{searchEnd} >= date
+    	group by date
+    </select>
+    
+
+    <select id="list" resultType="Order" >
+        <include refid="selectAllVO" />
+        where 1 = 1
+        <if test="date != null and date != ''">
+            and a.date = #{date}
+        </if>
+        <if test="status != null ">
+            and a.status = #{status}
+        </if>
+        <if test="table != null and table.tableId != null">
+            and a.table_id = #{table.tableId}
+        </if>
+        order by a.date desc,convert(b.table_name using gbk),a.rockover desc
+    </select>
+    
+    <select id="getLastOrder" resultType="Order">
+    	<include refid="selectAllVO" /> 
+    	where a.date = #{date} and a.table_id = #{table.tableId}
+    	order by a.rockover desc limit 1
+    </select>
+
+    <select id="selectMaxRockover" resultType="Integer">
+        select max(rockover) from rest_order where date = #{date} and table_id = #{table.tableId}
+    </select>
+
+    <select id="getById" resultType="Order" >
+        <include refid="selectAllVO" />
+        where a.id = #{id}
+    </select>
+
+    <insert id="add" keyProperty="id" useGeneratedKeys="true">
+        insert into rest_order(start_time,no,table_id,rockover,date,money,status,type)
+        values(#{startTime},#{no},#{table.tableId},#{rockover},#{date},#{money},1,#{type})
+    </insert>
+
+    <update id="updateMoney">
+        update rest_order set money = #{money} where id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        update rest_order set end_time = #{endTime},status = #{status} where id = #{id}
+    </update>
+
+    <delete id="deleteByIds" >
+        delete from rest_order
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+</mapper>

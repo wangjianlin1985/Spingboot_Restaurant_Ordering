@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.restaurant.dao.FoodBindDao">
+
+	<sql id="selectAllVO">
+		select
+			a.id,
+			a.food_id as "food.foodId",
+			b.food_name as "food.foodName",
+			b.photo as "food.photo",
+			b.price as "food.price",
+			a.num,
+			a.price,
+			a.type,
+			a.main_Id as mainId
+		from rest_food_bind a 
+			left join rest_food b on a.food_id = b.food_id 
+	</sql>
+	
+	<select id="getById" resultType="FoodBind" >
+		<include refid="selectAllVO" />
+		where a.id = #{id}	
+	</select>
+	
+	<select id="list"  resultType="FoodBind" >
+		<include refid="selectAllVO" />
+		where 1 = 1
+		<if test="mainId != null">
+			and a.main_id = #{mainId}
+		</if>
+		<if test="type != null">
+			and a.type = #{type}
+		</if>
+	</select>
+	
+	
+	<insert id="add">
+		insert into rest_food_bind(id,food_id,num,price,type,main_id) values (#{id},#{food.foodId},#{num},#{price},#{type},#{mainId})
+	</insert>
+	
+	
+	<delete id="deleteById" >
+        delete from rest_food_bind where id = #{id}
+    </delete>
+
+
+</mapper>

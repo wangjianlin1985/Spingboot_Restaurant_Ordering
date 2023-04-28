@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.study.restaurant.dao.FoodDao">
+    
+    <sql id="selectAllVO">
+    	select
+    		food_id as foodId,
+    		food_name as foodName,
+    	    photo,
+    	    remark,
+    	    price,
+    		status
+    	from rest_food
+    </sql>
+    
+    <select id="getById" parameterType="Long" resultType="Food">
+        <include refid="selectAllVO"/>
+        where food_id = #{foodId}
+    </select>
+    
+    
+    <select id="list" parameterType="Food" resultType="Food">
+        <include refid="selectAllVO"/>
+        where 1 = 1
+        <if test="foodName != null and foodName != ''">
+            and food_name like concat('%',#{foodName},'%')
+        </if>
+        <if test="status != null">
+        	and status = #{status}
+        </if>
+        order by convert(food_name using gbk)
+    </select>
+    
+    <insert id="add" parameterType="Food">
+        insert into rest_food (
+			<if test="foodName != null and foodName != '' ">food_name,</if>
+            <if test="photo != null and photo != '' ">photo,</if>
+            <if test="remark != null and remark != '' ">remark,</if>
+            <if test="price != null">price,</if>
+			<if test="status != null">status,</if>
+ 			food_id
+        )values(
+			<if test="foodName != null and foodName != ''">#{foodName},</if>
+            <if test="photo != null and photo != '' ">#{photo},</if>
+            <if test="remark != null and remark != '' ">#{remark},</if>
+            <if test="price != null">#{price},</if>
+			<if test="status != null">#{status},</if>
+ 			#{foodId}
+		)
+    </insert>
+	 
+    <update id="update" parameterType="Food">
+        update rest_food
+        <set>
+            <if test="foodName != null and foodName != ''">food_name = #{foodName},</if>
+            <if test="photo != null and photo != '' ">photo = #{photo},</if>
+            <if test="remark != null and remark != '' ">remark = #{remark},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        where food_id = #{foodId}
+    </update>
+    
+    <update id="updateStatus" parameterType="Food">
+        update rest_food 
+        set status = #{status}
+        where food_id = #{foodId}
+    </update>
+    
+	
+    <delete id="deleteByIds" >
+        delete from rest_food
+        where food_id in 
+        <foreach item="foodId" collection="array" open="(" separator="," close=")">
+        	#{foodId}
+        </foreach>
+    </delete>
+    
+</mapper>
